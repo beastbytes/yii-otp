@@ -64,7 +64,13 @@
         }
     },
     "extra": {
-        "config-plugin-file": "config.php"
+        "config-plugin-options": {
+            "source-directory": "config"
+        },
+        "config-plugin": {
+            "di": "di.php",
+            "params": "params.php"
+        }
     },
     "config": {
         "sort-packages": true,
