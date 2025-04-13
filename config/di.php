@@ -35,11 +35,11 @@ return [
         'class' => Totp::class,
         '__construct()' => [
             'clock' => ClockInterface::class,
-            'digest' => $params['beastbytes/yii-otp']['totp']['digest'],
-            'digits' => $params['beastbytes/yii-otp']['totp']['digits'],
-            'leeway' => $params['beastbytes/yii-otp']['totp']['leeway'],
-            'period' => $params['beastbytes/yii-otp']['totp']['period'],
-            'secretLength' => $params['beastbytes/yii-otp']['totp']['secretLength'],
+            'digest' => $params['beastbytes/yii-otp']['otp']['digest'],
+            'digits' => $params['beastbytes/yii-otp']['otp']['digits'],
+            'leeway' => $params['beastbytes/yii-otp']['otp']['leeway'],
+            'period' => $params['beastbytes/yii-otp']['otp']['period'],
+            'secretLength' => $params['beastbytes/yii-otp']['otp']['secretLength'],
         ],
     ],
     OtpServiceInterface::class => [
