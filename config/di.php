@@ -45,8 +45,8 @@ return [
     OtpServiceInterface::class => [
         'class' => TotpService::class,
         '__construct()' => [
-            'backupCodeCount' => $params['beastbytes/yii-otp']['backupCode']['count'],
-            'backupCodeLength' => $params['beastbytes/yii-otp']['backupCode']['length'],
+            'backupCodeCount' => $params['beastbytes/yii-otp']['otpBackupCode']['count'],
+            'backupCodeLength' => $params['beastbytes/yii-otp']['otpBackupCode']['length'],
             'crypt' => Reference::to(Crypt::class),
             'database' => ConnectionInterface::class,
             'encryptionKey' => $params['beastbytes/yii-otp']['crypt']['key'],
