@@ -96,6 +96,27 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
     }
 
     /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws ReflectionException
+     * @throws Throwable
+     */
+    public function getOtp(string $userId): ?OtpInterface
+    {
+        $row = (new Query($this->database))
+            ->from($this->otpTable)
+            ->where(['user_id' => $userId])
+            ->one()
+        ;
+
+        if ($row === null) {
+            return null;
+        }
+
+        return $this->hydrate($row, $userId);
+    }
+
+    /**
      * Whether OTP is enabled for a user.
      *
      * @param string $userId ID of the user to check.
@@ -133,27 +154,6 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
         }
 
         return $this->verifyOtpCode($code, $userId);
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws ReflectionException
-     * @throws Throwable
-     */
-    private function getOtp(string $userId): ?OtpInterface
-    {
-        $row = (new Query($this->database))
-            ->from($this->otpTable)
-            ->where(['user_id' => $userId])
-            ->one()
-        ;
-
-        if ($row === null) {
-            return null;
-        }
-
-        return $this->hydrate($row, $userId);
     }
 
     /**
