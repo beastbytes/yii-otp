@@ -52,7 +52,7 @@ return [
             'encryptionKey' => $params['beastbytes/yii-otp']['crypt']['key'],
             'otpBackupCodesTable' => $params['beastbytes/yii-otp']['database']['otpBackupCodeTable'],
             'otp' => Reference::to(OtpInterface::class),
-            'otpTable' => $params['beastbytes/yii-otp']['database']['totpTable'],
+            'otpTable' => $params['beastbytes/yii-otp']['database']['otpTable'],
         ],
     ]
 ];
