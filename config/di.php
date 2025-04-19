@@ -27,7 +27,7 @@ return [
         'withKdfAlgorithm()' => [
             $params['beastbytes/yii-otp']['crypt']['kdfAlgorithm'],
         ],    
-        'withAuthorizationKeyInfo' => [
+        'withAuthorizationKeyInfo()' => [
             $params['beastbytes/yii-otp']['crypt']['authorizationKeyInfo'],
         ],    
     ],
