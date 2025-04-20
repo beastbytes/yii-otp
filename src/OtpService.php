@@ -96,6 +96,10 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
     }
 
     /**
+     * Return the OTP model for a user
+     *
+     * @param string $userId ID of the user.
+     * @return OTP model for the user; null if OTP not enabled for the user
      * @throws Exception
      * @throws InvalidConfigException
      * @throws ReflectionException
