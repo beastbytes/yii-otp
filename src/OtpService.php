@@ -56,7 +56,7 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
      */
     public function createOtp(string $userId, string $label, ?string $issuer = null, array $params = []): array
     {
-        $r = $this
+        $this
             ->database
             ->createCommand()
             ->insert(
