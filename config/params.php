@@ -25,7 +25,7 @@ return [
             'key' => 'rstswSLBfzMKLyELbvKSkfT3qkHjAVoSQtVNSkWimeiGbOABqJXA3NqFYtXyewpS',
         ],
         'database' => [
-            'otpBackupCodeTable' => 'otp_backup_code',
+            'backupCodeTable' => 'otp_backup_code',
             'otpTable' => 'otp',
         ],
         'otp' => [ // The default values work for authenticator apps like Google Authenticator
