@@ -8,9 +8,36 @@ use Exception;
 use ReflectionException;
 use ReflectionProperty;
 use Throwable;
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class HotpService extends OtpService
 {
+    /**
+     * Return the OTP parameters for a user
+     *
+     * @param string $userId ID of the user.
+     * @return array OTP parameters as key=>value pairs, empty if OTP not enabled for the user
+     * @psalm-return array{counter?: int, digest?: string, digits?: int}
+     * @throws \Yiisoft\Db\Exception\Exception
+     * @throws InvalidConfigException
+     * @throws ReflectionException
+     * @throws Throwable
+     */
+    public function getOtpParameters(string $userId): array
+    {
+        $parameters = [];
+
+        /** @var Hotp $otp */
+        $otp = $this->getOtp($userId);
+
+        if ($otp !== null) {
+            $parameters['counter'] = $otp->getCounter();
+            $parameters['digest'] = $otp->getDigest();
+            $parameters['digits'] = $otp->getDigits();
+        }
+
+        return $parameters;
+    }
     /**
      * @param string $userId ID of the user.
      * @return array Columns as key=>value pairs.

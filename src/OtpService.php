@@ -96,31 +96,6 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
     }
 
     /**
-     * Return the OTP model for a user
-     *
-     * @param string $userId ID of the user.
-     * @return OTP model for the user; null if OTP not enabled for the user
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws ReflectionException
-     * @throws Throwable
-     */
-    public function getOtp(string $userId): ?OtpInterface
-    {
-        $row = (new Query($this->database))
-            ->from($this->otpTable)
-            ->where(['user_id' => $userId])
-            ->one()
-        ;
-
-        if ($row === null) {
-            return null;
-        }
-
-        return $this->hydrate($row, $userId);
-    }
-
-    /**
      * Whether OTP is enabled for a user.
      *
      * @param string $userId ID of the user to check.
@@ -161,6 +136,31 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
     }
 
     /**
+     * Return the OTP model for a user
+     *
+     * @param string $userId ID of the user.
+     * @return OTP model for the user; null if OTP not enabled for the user
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws ReflectionException
+     * @throws Throwable
+     */
+    protected function getOtp(string $userId): ?OtpInterface
+    {
+        $row = (new Query($this->database))
+            ->from($this->otpTable)
+            ->where(['user_id' => $userId])
+            ->one()
+        ;
+
+        if ($row === null) {
+            return null;
+        }
+
+        return $this->hydrate($row, $userId);
+    }
+
+    /**
      * @throws Exception
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
@@ -191,6 +191,7 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
         return false;
     }
 
+    abstract public function getOtpParameters(string $userId): array;
     abstract protected function columns(string $userId): array;
     abstract protected function hydrate(array $data, string $userId): ?OtpInterface;
 }

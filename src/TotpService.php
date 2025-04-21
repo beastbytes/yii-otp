@@ -8,10 +8,38 @@ use Exception;
 use ReflectionException;
 use ReflectionProperty;
 use Throwable;
-
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class TotpService extends OtpService
 {
+    /**
+     * Return the OTP parameters for a user
+     *
+     * @param string $userId ID of the user.
+     * @return array OTP parameters as key=>value pairs, empty if OTP not enabled for the user
+     * @psalm-return array{digest?: string, digits?: int, leeway?: int, period?: int}
+     * @throws \Yiisoft\Db\Exception\Exception
+     * @throws InvalidConfigException
+     * @throws ReflectionException
+     * @throws Throwable
+     */
+    public function getOtpParameters(string $userId): array
+    {
+        $parameters = [];
+
+        /** @var Totp $otp */
+        $otp = $this->getOtp($userId);
+
+        if ($otp !== null) {
+            $parameters['digest'] = $otp->getDigest();
+            $parameters['digits'] = $otp->getDigits();
+            $parameters['leeway'] = $otp->getLeeway();
+            $parameters['period'] = $otp->getPeriod();
+        }
+
+        return $parameters;
+    }
+
     /**
      * @param string $userId ID of the user.
      * @return array Columns as key=>value pairs.

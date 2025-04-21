@@ -28,12 +28,12 @@ Interface OtpServiceInterface
     public function disableOtp(string $userId): void;
 
     /**
-     * Return the OTP model for a user
+     * Returns the OTP parameters for a user
      *
      * @param string $userId ID of the user.
-     * @return OTP model for the user; null if OTP not enabled for the user
+     * @return array OTP parameters as key=>value pairs, empty if OTP not enabled for the user
      */
-    public function getOtp(string $userId): ?OtpInterface;
+    public function getOtpParameters(string $userId): array;
 
     /**
      * Whether OTP is enabled for a user.

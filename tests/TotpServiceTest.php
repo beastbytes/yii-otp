@@ -200,6 +200,28 @@ class TotpServiceTest extends TestCase
     }
 
     #[Test]
+    public function otpParameters(): void
+    {
+        $this->assertEmpty($this->otpService->getOtpParameters(self::USER_ID));
+
+        $this->otpService->createOtp(self::USER_ID, self::LABEL);
+
+        $otpParameters = $this->otpService->getOtpParameters(self::USER_ID);
+        $this->assertNotEmpty($otpParameters);
+
+        foreach ([
+            'digest' => 'string',
+            'digits' => 'int',
+            'leeway' => 'int',
+            'period' => 'int',
+        ] as $parameter => $type) {
+            $this->assertArrayHasKey($parameter, $otpParameters);
+            $assertion = 'assertIs' . ucfirst($type);
+            $this->$assertion($otpParameters[$parameter]);
+        }
+    }
+
+    #[Test]
     public function verifyOtp(): void
     {
         $reflectionSecret = new ReflectionProperty(self::$otp, 'secret');
