@@ -34,7 +34,7 @@ return [
     OtpInterface::class => [
         'class' => Totp::class,
         '__construct()' => [
-            'clock' => ClockInterface::class,
+            'clock' => Reference::to(ClockInterface::class),
             'digest' => $params['beastbytes/yii-otp']['otp']['digest'],
             'digits' => $params['beastbytes/yii-otp']['otp']['digits'],
             'leeway' => $params['beastbytes/yii-otp']['otp']['leeway'],
@@ -46,10 +46,10 @@ return [
         'class' => TotpService::class,
         '__construct()' => [
             'backupCodeCount' => $params['beastbytes/yii-otp']['otpBackupCode']['count'],
-            'backupCodeLength' => $params['beastbytes/yii-otp']['otpBackupCode']['length'],    
+            'backupCodeLength' => $params['beastbytes/yii-otp']['otpBackupCode']['length'],
             'backupCodeTable' => $params['beastbytes/yii-otp']['database']['backupCodeTable'],
             'crypt' => Reference::to(Crypt::class),
-            'database' => ConnectionInterface::class,
+            'database' => Reference::to(ConnectionInterface::class),
             'encryptionKey' => $params['beastbytes/yii-otp']['crypt']['key'],
             'otp' => Reference::to(OtpInterface::class),
             'otpTable' => $params['beastbytes/yii-otp']['database']['otpTable'],
