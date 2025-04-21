@@ -26,7 +26,7 @@ return [
         ],
         'database' => [
             'otpBackupCodeTable' => 'otp_backup_code',
-            'otpTable' => 'totp',
+            'otpTable' => 'otp',
         ],
         'otp' => [ // The default values work for authenticator apps like Google Authenticator
             'digest' => OtpDigest::sha1->name,
