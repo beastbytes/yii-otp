@@ -27,11 +27,11 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
     /**
      * @param positive-int $backupCodeCount Number of backup codes to generate
      * @param positive-int $backupCodeLength Length of each backup code
+     * @psalm-param non-empty-string $backupCodeTable Table name for OTP backup codes
      * @param Crypt $crypt Crypt instance
      * @param ConnectionInterface $database Yii database connection instance
      * @psalm-param non-empty-string $encryptionKey Key for encryption and decryption
      * @param OtpInterface $otp OTP instance
-     * @psalm-param non-empty-string $backupCodeTable Table name for OTP backup codes
      * @psalm-param non-empty-string $otpTable Table name for OTP codes and data
      */
     public function __construct(
@@ -67,10 +67,10 @@ abstract class OtpService implements OtpServiceInterface, BackupCodeInterface
         ;
 
         return [
-            'qrCode' => (new QRCode())->render(
+            (new QRCode())->render(
                 $this->otp->getProvisioningUri($label, $issuer, $params)
             ),
-            'secret' => $this->otp->getSecret(),
+            $this->otp->getSecret(),
         ];
     }
 
