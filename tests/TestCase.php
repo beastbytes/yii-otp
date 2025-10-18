@@ -43,7 +43,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'null' => false,
             ],
             'secret' => [
-                'type' => 'binary',
+                'type' => 'string',
+                'size' => 255,
                 'null' => false,
             ],
             'digest' => [
@@ -82,7 +83,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'null' => false,
             ],
             'secret' => [
-                'type' => 'binary',
+                'type' => 'string',
+                'size' => 255,
                 'null' => false,
             ],
             'digest' => [

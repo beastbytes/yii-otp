@@ -54,7 +54,7 @@ final class TotpService extends OtpService
             'last_code' => $this->otp->getLastCode(),
             'leeway' => $this->otp->getLeeway(),
             'period' => $this->otp->getPeriod(),
-            'secret' => $this->crypt->encryptByKey($this->otp->getSecret(), $this->encryptionKey, $userId),
+            'secret' => $this->otp->getSecret(),
             'user_id' => $userId,
         ];
     }
@@ -74,12 +74,7 @@ final class TotpService extends OtpService
             'secret' => 'secret',
         ] as $key => $property) {
             $reflectionProperty = new ReflectionProperty($this->otp, $property);
-            $reflectionProperty->setValue(
-                $this->otp,
-                $property === 'secret'
-                    ? $this->crypt->decryptByKey($data[$key], $this->encryptionKey, $userId)
-                    : $data[$key]
-            );
+            $reflectionProperty->setValue($this->otp, $data[$key]);
         };
 
         return $this->otp;

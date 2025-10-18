@@ -38,6 +38,7 @@ final class HotpService extends OtpService
 
         return $parameters;
     }
+
     /**
      * @param string $userId ID of the user.
      * @return array Columns as key=>value pairs.
@@ -51,7 +52,7 @@ final class HotpService extends OtpService
             'digest' => $this->otp->getDigest(),
             'digits' => $this->otp->getDigits(),
             'last_code' => $this->otp->getLastCode(),
-            'secret' => $this->crypt->encryptByKey($this->otp->getSecret(), $this->encryptionKey, $userId),
+            'secret' => $this->otp->getSecret(),
             'user_id' => $userId,
             'window' => $this->otp->getWindow(),
         ];
@@ -72,12 +73,7 @@ final class HotpService extends OtpService
             'secret' => 'secret',
         ] as $key => $property) {
             $reflectionProperty = new ReflectionProperty($this->otp, $property);
-            $reflectionProperty->setValue(
-                $this->otp,
-                $property === 'secret'
-                    ? $this->crypt->decryptByKey($data[$key], $this->encryptionKey, $userId)
-                    : $data[$key]
-            );
+            $reflectionProperty->setValue($this->otp, $data[$key]);
         };
 
         return $this->otp;

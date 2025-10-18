@@ -30,17 +30,9 @@ class TotpServiceTest extends TestCase
     public const SECRET_REGEX = '/^[2-7A-Z]+$/';
     private const USER_ID = '35';
 
-    private static Crypt $crypt;
     private static Totp $otp;
 
     private TotpService $otpService;
-
-    #[BeforeClass]
-    public static function init(): void
-    {
-        parent::init();
-        self::$crypt = new Crypt(self::$params['crypt']['cipher']);
-    }
 
     #[Before]
     protected function before(): void
@@ -59,9 +51,7 @@ class TotpServiceTest extends TestCase
         $this->otpService = new TotpService(
             backupCodeCount: self::$params['backupCode']['count'],
             backupCodeLength: self::$params['backupCode']['length'],
-            crypt: self::$crypt,
             database: $database,
-            encryptionKey: self::$params['crypt']['key'],
             backupCodeTable: self::$params['database']['otpBackupCodeTable'],
             otp: self::$otp,
             otpTable: self::$params['database']['totpTable'],
@@ -229,9 +219,7 @@ class TotpServiceTest extends TestCase
         $totpService = new TotpService(
             backupCodeCount: self::$params['backupCode']['count'],
             backupCodeLength: self::$params['backupCode']['length'],
-            crypt: self::$crypt,
             database: $this->getDatabase(),
-            encryptionKey: self::$params['crypt']['key'],
             backupCodeTable: self::$params['database']['otpBackupCodeTable'],
             otp: self::$otp,
             otpTable: self::$params['database']['totpTable'],

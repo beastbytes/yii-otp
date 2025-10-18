@@ -16,21 +16,6 @@ use Yiisoft\Security\Crypt;
 
 return [
     ClockInterface::class => Clock::class,
-    Crypt::class => [
-        'class' => Crypt::class,
-        '__construct()' => [
-            'cipher' => $params['beastbytes/yii-otp']['crypt']['cipher'],
-        ],        
-        'withDerivationIterations()' => [
-            $params['beastbytes/yii-otp']['crypt']['iterations'],
-        ],
-        'withKdfAlgorithm()' => [
-            $params['beastbytes/yii-otp']['crypt']['kdfAlgorithm'],
-        ],    
-        'withAuthorizationKeyInfo()' => [
-            $params['beastbytes/yii-otp']['crypt']['authorizationKeyInfo'],
-        ],    
-    ],
     OtpInterface::class => [
         'class' => Totp::class,
         '__construct()' => [
@@ -48,9 +33,7 @@ return [
             'backupCodeCount' => $params['beastbytes/yii-otp']['otpBackupCode']['count'],
             'backupCodeLength' => $params['beastbytes/yii-otp']['otpBackupCode']['length'],
             'backupCodeTable' => $params['beastbytes/yii-otp']['database']['backupCodeTable'],
-            'crypt' => Reference::to(Crypt::class),
             'database' => Reference::to(ConnectionInterface::class),
-            'encryptionKey' => $params['beastbytes/yii-otp']['crypt']['key'],
             'otp' => Reference::to(OtpInterface::class),
             'otpTable' => $params['beastbytes/yii-otp']['database']['otpTable'],
         ],

@@ -14,7 +14,6 @@ final class M250404181325CreateTable implements RevertibleMigrationInterface, Tr
 {
     private const TABLE_NAME = 'totp';
 
-
     /**
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -25,7 +24,7 @@ final class M250404181325CreateTable implements RevertibleMigrationInterface, Tr
             self::TABLE_NAME,
             [
                 'user_id' => 'integer NOT NULL',
-                'secret' => 'binary NOT NULL',
+                'secret' => 'string(255) NOT NULL',
                 'digest' => 'string(255) NOT NULL',
                 'digits' => 'integer NOT NULL',
                 'period' => 'integer NOT NULL',

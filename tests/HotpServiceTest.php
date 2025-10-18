@@ -29,17 +29,9 @@ class HotpServiceTest extends TestCase
     public const SECRET_REGEX = '/^[2-7A-Z]+$/';
     private const USER_ID = '35';
 
-    private static Crypt $crypt;
     private static Hotp $otp;
 
     private HotpService $otpService;
-
-    #[BeforeClass]
-    public static function init(): void
-    {
-        parent::init();
-        self::$crypt = new Crypt(self::$params['crypt']['cipher']);
-    }
 
     #[Before]
     protected function before(): void
@@ -58,9 +50,7 @@ class HotpServiceTest extends TestCase
             backupCodeCount: self::$params['backupCode']['count'],
             backupCodeLength: self::$params['backupCode']['length'],
             backupCodeTable: self::$params['database']['otpBackupCodeTable'],
-            crypt: self::$crypt,
             database: $database,
-            encryptionKey: self::$params['crypt']['key'],
             otp: self::$otp,
             otpTable: self::$params['database']['hotpTable'],
         );
@@ -227,9 +217,7 @@ class HotpServiceTest extends TestCase
             backupCodeCount: self::$params['backupCode']['count'],
             backupCodeLength: self::$params['backupCode']['length'],
             backupCodeTable: self::$params['database']['otpBackupCodeTable'],
-            crypt: self::$crypt,
             database: $this->getDatabase(),
-            encryptionKey: self::$params['crypt']['key'],
             otp: self::$otp,
             otpTable: self::$params['database']['hotpTable'],
         );
