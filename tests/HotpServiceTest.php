@@ -157,12 +157,11 @@ class HotpServiceTest extends TestCase
             ->createOtp(self::USER_ID, self::LABEL, self::ISSUER)
         ;
 
-        $this->assertArrayHasKey('qrCode', $result);
-        $this->assertArrayHasKey('secret', $result);
-        $this->assertIsString($result['qrCode']);
-        $this->assertIsString($result['secret']);
-        $this->assertMatchesRegularExpression(self::QR_CODE_REGEX, $result['qrCode']);
-        $this->assertMatchesRegularExpression('/^[2-7A-Z]+$/', $result['secret']);
+        $this->assertCount(2, $result);
+        $this->assertIsString($result[0]);
+        $this->assertIsString($result[1]);
+        $this->assertMatchesRegularExpression(self::QR_CODE_REGEX, $result[0]);
+        $this->assertMatchesRegularExpression('/^[2-7A-Z]+$/', $result[1]);
 
         $this->assertTrue(
             $this
