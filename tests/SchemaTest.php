@@ -2,11 +2,9 @@
 
 namespace BeastBytes\Yii\Otp\Tests;
 
-use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
-use RuntimeException;
-use Yiisoft\Db\Constraint\Constraint;
+use Yiisoft\Db\Constraint\Index;
 
 class SchemaTest extends TestCase
 {
@@ -67,12 +65,12 @@ class SchemaTest extends TestCase
                 }
 
                 if (array_key_exists('index', $columnSchema)) {
+                    $indexes++;
                     if (($columnSchema['index']['type']) === 'primary') {
                         $primaryKey = $databaseSchema->getTablePrimaryKey($tableName);
-                        $this->assertInstanceOf(Constraint::class, $primaryKey);
-                        $this->assertSame([$name], $primaryKey->getColumnNames());
+                        $this->assertInstanceOf(Index::class, $primaryKey);
+                        $this->assertSame([$name], $primaryKey->columnNames);
                     } else {
-                        $indexes++;
                         $this->assertIndex(
                             table: $tableName,
                             expectedColumnNames: [$name],
@@ -104,18 +102,18 @@ class SchemaTest extends TestCase
         $found = false;
         foreach ($indexes as $index) {
             try {
-                $this->assertEqualsCanonicalizing($expectedColumnNames, $index->getColumnNames());
+                $this->assertEqualsCanonicalizing($expectedColumnNames, $index->columnNames);
             } catch (ExpectationFailedException) {
                 continue;
             }
 
             $found = true;
 
-            $this->assertSame($expectedIsUnique, $index->isUnique());
-            $this->assertSame($expectedIsPrimary, $index->isPrimary());
+            $this->assertSame($expectedIsUnique, $index->isUnique);
+            $this->assertSame($expectedIsPrimary, $index->isPrimaryKey);
 
             if ($expectedName !== null) {
-                $this->assertSame($expectedName, $index->getName());
+                $this->assertSame($expectedName, $index->name);
             }
         }
 
