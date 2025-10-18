@@ -30,6 +30,7 @@ composer.phar
 
 # phpunit
 phpunit.phar
+.phpunit.cache
 .phpunit.result.cache
 
 # local phpunit config
