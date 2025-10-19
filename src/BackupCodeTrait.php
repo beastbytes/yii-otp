@@ -6,7 +6,7 @@ namespace BeastBytes\Yii\Otp;
 
 use Exception;
 use Throwable;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\Exception as DbException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Security\PasswordHasher;
@@ -26,9 +26,9 @@ trait BackupCodeTrait
     public const BACKUP_CODE_REGEX = '/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.*_)(?!.*\W)(?!.* ).+$/';
 
     /**
+     * @throws DbException
      * @throws InvalidConfigException
      * @throws Throwable
-     * @throws \Yiisoft\Db\Exception\Exception
      */
     public function countBackupCodes(string $userId): int
     {
@@ -75,10 +75,10 @@ trait BackupCodeTrait
         $this
             ->database
             ->createCommand()
-            ->batchInsert(
+            ->insertBatch(
                 $this->backupCodeTable,
-                ['user_id', 'code'],
                 $rows,
+                ['user_id', 'code'],
             )
             ->execute()
         ;
@@ -87,10 +87,9 @@ trait BackupCodeTrait
     }
 
     /**
+     * @throws DbException
      * @throws InvalidConfigException
      * @throws Throwable
-     * @throws InvalidArgumentException
-     * @throws \Yiisoft\Db\Exception\Exception
      */
     private function deleteBackupCodes(string $userId): void
     {
@@ -103,9 +102,9 @@ trait BackupCodeTrait
     }
 
     /**
+     * @throws DbException
      * @throws InvalidConfigException
      * @throws Throwable
-     * @throws \Yiisoft\Db\Exception\Exception
      */
     private function verifyBackupCode(string $code, string $userId): bool
     {
