@@ -10,7 +10,6 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\Clock;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Definitions\Reference;
-use Yiisoft\Security\Crypt;
 
 /** @var array $params */
 
@@ -30,12 +29,18 @@ return [
     OtpServiceInterface::class => [
         'class' => TotpService::class,
         '__construct()' => [
-            'backupCodeCount' => $params['beastbytes/yii-otp']['otpBackupCode']['count'],
-            'backupCodeLength' => $params['beastbytes/yii-otp']['otpBackupCode']['length'],
-            'backupCodeTable' => $params['beastbytes/yii-otp']['database']['backupCodeTable'],
             'database' => Reference::to(ConnectionInterface::class),
             'otp' => Reference::to(OtpInterface::class),
-            'otpTable' => $params['beastbytes/yii-otp']['database']['otpTable'],
+            'table' => $params['beastbytes/yii-otp']['database']['otpTable'],
+        ],
+    ],
+    BackupCodeServiceInterface::class => [
+        'class' => BackupCodeService::class,
+        '__construct()' => [
+            'count' => $params['beastbytes/yii-otp']['backupCode']['count'],
+            'length' => $params['beastbytes/yii-otp']['backupCode']['length'],
+            'table' => $params['beastbytes/yii-otp']['database']['backupCodeTable'],
+            'database' => Reference::to(ConnectionInterface::class),
         ],
     ]
 ];

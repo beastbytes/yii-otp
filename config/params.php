@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use BeastBytes\Yii\Otp\BackupCodeService;
 use BeastBytes\Yii\Otp\Otp;
-use BeastBytes\Yii\Otp\OtpService;
 use BeastBytes\Yii\Otp\Totp;
 use BeastBytes\Yii\Otp\OtpDigest;
 use OTPHP\OTPInterface;
@@ -11,9 +11,9 @@ use OTPHP\TOTPInterface;
 
 return [
     'beastbytes/yii-otp' => [
-        'otpBackupCode' => [
-            'count' => OtpService::BACKUP_CODE_COUNT,
-            'length' => OtpService::BACKUP_CODE_LENGTH,
+        'backupCode' => [
+            'count' => BackupCodeService::COUNT,
+            'length' => BackupCodeService::LENGTH,
         ],
         'database' => [
             'backupCodeTable' => 'otp_backup_code',

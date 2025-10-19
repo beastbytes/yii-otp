@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace BeastBytes\Yii\Otp\Tests;
 
+use BeastBytes\Yii\Otp\BackupCodeService;
 use BeastBytes\Yii\Otp\Hotp;
 use BeastBytes\Yii\Otp\HotpService;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
-use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionProperty;
-use Yiisoft\Security\Crypt;
 use Yiisoft\Security\Random;
 
 class HotpServiceTest extends TestCase
@@ -31,6 +30,7 @@ class HotpServiceTest extends TestCase
 
     private static Hotp $otp;
 
+    private BackupCodeService $backupCodeService;
     private HotpService $otpService;
 
     #[Before]
@@ -46,13 +46,17 @@ class HotpServiceTest extends TestCase
             digits: self::$params['hotp']['digits'],
             secretLength: self::$params['hotp']['secretLength'],
         );
+        $this->backupCodeService = new BackupCodeService(
+            count: self::$params['backupCode']['count'],
+            length: self::$params['backupCode']['length'],
+            table: self::$params['database']['backupCodeTable'],
+            database: $database,
+        );
         $this->otpService = new HotpService(
-            backupCodeCount: self::$params['backupCode']['count'],
-            backupCodeLength: self::$params['backupCode']['length'],
-            backupCodeTable: self::$params['database']['otpBackupCodeTable'],
+            backupCodeService: $this->backupCodeService,
             database: $database,
             otp: self::$otp,
-            otpTable: self::$params['database']['hotpTable'],
+            table: self::$params['database']['hotpTable'],
         );
     }
 
@@ -61,76 +65,8 @@ class HotpServiceTest extends TestCase
     {
         $this
             ->otpService
-            ->disableOtp(self::USER_ID)
+            ->disable(self::USER_ID)
         ;
-    }
-
-    #[Test]
-    public function backupCodes(): void
-    {
-        $this->assertSame(
-            0,
-            $this->otpService->countBackupCodes(self::USER_ID),
-        );
-
-        $backupCodes = $this
-            ->otpService
-            ->createBackupCodes(self::USER_ID)
-        ;
-
-        $this->assertCount(
-            self::$params['backupCode']['count'],
-            $backupCodes,
-        );
-
-        foreach ($backupCodes as $backupCode) {
-            $this->assertIsString($backupCode);
-            $this->assertMatchesRegularExpression(
-                '/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.*_)(?!.*\W)(?!.* ).{'
-                    . self::$params['backupCode']['length']
-                    .'}$/',
-                $backupCode,
-            );
-        }
-
-        do {
-            $invalidBackupCode = Random::string(self::$params['backupCode']['length']);
-        } while (
-            in_array($invalidBackupCode, $backupCodes)
-            || preg_match(HotpService::BACKUP_CODE_REGEX, $invalidBackupCode) === 0)
-        ;
-
-        $this->assertFalse(
-            $this
-                ->otpService
-                ->verify($invalidBackupCode, self::USER_ID),
-        );
-
-        $backupCode = $backupCodes[array_rand($backupCodes)];
-
-        $this->assertTrue(
-            $this
-                ->otpService
-                ->verify($backupCode, self::USER_ID),
-        );
-
-        $this->assertFalse(
-            $this
-                ->otpService
-                ->verify($backupCode, self::USER_ID),
-        );
-
-        $this->assertSame(
-            self::$params['backupCode']['count'] - 1,
-            $this->otpService->countBackupCodes(self::USER_ID),
-        );
-
-        $this->assertCount(
-            self::$params['backupCode']['count'],
-            $this
-                ->otpService
-                ->createBackupCodes(self::USER_ID),
-        );
     }
 
     #[Test]
@@ -139,12 +75,12 @@ class HotpServiceTest extends TestCase
         $this->assertFalse(
             $this
                 ->otpService
-                ->isOtpEnabled(self::USER_ID),
+                ->isEnabled(self::USER_ID),
         );
 
         $result = $this
             ->otpService
-            ->createOtp(self::USER_ID, self::LABEL, self::ISSUER)
+            ->create(self::USER_ID, self::LABEL, self::ISSUER)
         ;
 
         $this->assertCount(2, $result);
@@ -156,7 +92,7 @@ class HotpServiceTest extends TestCase
         $this->assertTrue(
             $this
                 ->otpService
-                ->isOtpEnabled(self::USER_ID),
+                ->isEnabled(self::USER_ID),
         );
     }
 
@@ -165,35 +101,45 @@ class HotpServiceTest extends TestCase
     {
         $this
             ->otpService
-            ->createOtp(self::USER_ID, self::LABEL, self::ISSUER)
+            ->create(self::USER_ID, self::LABEL, self::ISSUER)
         ;
 
         $this->assertTrue(
             $this
                 ->otpService
-                ->isOtpEnabled(self::USER_ID),
+                ->isEnabled(self::USER_ID),
         );
 
         $this
             ->otpService
-            ->disableOtp(self::USER_ID)
+            ->disable(self::USER_ID)
         ;
 
         $this->assertFalse(
             $this
                 ->otpService
-                ->isOtpEnabled(self::USER_ID),
+                ->isEnabled(self::USER_ID),
         );
     }
 
     #[Test]
     public function otpParameters(): void
     {
-        $this->assertEmpty($this->otpService->getOtpParameters(self::USER_ID));
+        $this->assertEmpty(
+            $this
+                ->otpService
+                ->getParameters(self::USER_ID)
+        );
 
-        $this->otpService->createOtp(self::USER_ID, self::LABEL);
+        $this
+            ->otpService
+            ->create(self::USER_ID, self::LABEL)
+        ;
 
-        $otpParameters = $this->otpService->getOtpParameters(self::USER_ID);
+        $otpParameters = $this
+            ->otpService
+            ->getParameters(self::USER_ID)
+        ;
         $this->assertNotEmpty($otpParameters);
 
         foreach ([
@@ -214,16 +160,14 @@ class HotpServiceTest extends TestCase
         $reflectionSecret->setValue(self::$otp, self::TEST_SECRET);
 
         $otpService = new HotpService(
-            backupCodeCount: self::$params['backupCode']['count'],
-            backupCodeLength: self::$params['backupCode']['length'],
-            backupCodeTable: self::$params['database']['otpBackupCodeTable'],
+            backupCodeService: $this->backupCodeService,
             database: $this->getDatabase(),
             otp: self::$otp,
-            otpTable: self::$params['database']['hotpTable'],
+            table: self::$params['database']['hotpTable'],
         );
 
         $otpService
-            ->createOtp(self::USER_ID, self::LABEL, self::ISSUER)
+            ->create(self::USER_ID, self::LABEL, self::ISSUER)
         ;
 
         $this->assertFalse($otpService->verify(self::INVALID_OTP, self::USER_ID));

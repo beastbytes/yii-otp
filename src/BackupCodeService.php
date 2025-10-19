@@ -4,64 +4,70 @@ declare(strict_types=1);
 
 namespace BeastBytes\Yii\Otp;
 
-use Exception;
 use Throwable;
-use Yiisoft\Db\Exception\Exception as DbException;
+use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Security\PasswordHasher;
 use Yiisoft\Security\Random;
 
-trait BackupCodeTrait
+final class BackupCodeService implements BackupCodeServiceInterface
 {
     /**
      * Number of backup codes to generate
      */
-    public const BACKUP_CODE_COUNT = 10;
+    public const COUNT = 10;
     /**
      * Length of each backup code
      */
-    public const BACKUP_CODE_LENGTH = 16;
+    public const LENGTH = 16;
     /** @var string Backup codes only contain digits and upper and lowercase letters */
-    public const BACKUP_CODE_REGEX = '/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.*_)(?!.*\W)(?!.* ).+$/';
+    public const REGEX = '/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.*_)(?!.*\W)(?!.* ).+$/';
 
     /**
-     * @throws DbException
-     * @throws InvalidConfigException
-     * @throws Throwable
+     * @param positive-int $count Number of backup codes to generate
+     * @param positive-int $length Length of each backup code
+     * @psalm-param non-empty-string $table Table name for backup codes
+     * @param ConnectionInterface $database Yii database connection instance
+     *
      */
-    public function countBackupCodes(string $userId): int
+    public function __construct(
+        private readonly int $count,
+        private readonly int $length,
+        private readonly string $table,
+        protected readonly ConnectionInterface $database,
+    )
+    {
+    }
+
+    /**
+     * @return int The number of usable backup codes available to the user.
+     */
+    public function count(string $userId): int
     {
         return (new Query($this->database))
-            ->from($this->backupCodeTable)
+            ->from($this->table)
             ->where(['user_id' => $userId])
             ->count()
         ;
     }
 
     /**
-     * @param string $userId
      * @return string[]
-     * @throws Exception
-     * @throws Throwable
      */
-    public function createBackupCodes(string $userId): array
+    public function create(string $userId): array
     {
-        $this
-            ->database
-            ->createCommand()
-            ->delete($this->backupCodeTable, ['user_id' => $userId])
-            ->execute()
-        ;
+        $this->delete($userId);
 
         $codes = [];
         $rows = [];
         $passwordHasher = new PasswordHasher();
 
-        for ($i = 0; $i < $this->backupCodeCount; $i++) {
+        for ($i = 0; $i < $this->count; $i++) {
             do {
-                $code = Random::string($this->backupCodeLength);
-            } while (preg_match(self::BACKUP_CODE_REGEX, $code) === 0);
+                $code = Random::string($this->length);
+            } while (preg_match(self::REGEX, $code) === 0);
 
             $codes[] = $code;
             $rows[] = [
@@ -76,7 +82,7 @@ trait BackupCodeTrait
             ->database
             ->createCommand()
             ->insertBatch(
-                $this->backupCodeTable,
+                $this->table,
                 $rows,
                 ['user_id', 'code'],
             )
@@ -87,29 +93,28 @@ trait BackupCodeTrait
     }
 
     /**
-     * @throws DbException
      * @throws InvalidConfigException
      * @throws Throwable
+     * @throws Exception
      */
-    private function deleteBackupCodes(string $userId): void
+    public function delete(string $userId): int
     {
-        $this
+        return $this
             ->database
             ->createCommand()
-            ->delete($this->backupCodeTable, ['user_id' => $userId])
+            ->delete($this->table, ['user_id' => $userId])
             ->execute()
         ;
     }
 
     /**
-     * @throws DbException
-     * @throws InvalidConfigException
-     * @throws Throwable
+     * @param string $code The code to verify against the user
+     * @return bool Whether the code was valid for the user
      */
-    private function verifyBackupCode(string $code, string $userId): bool
+    public function verify(string $code, string $userId): bool
     {
         $rows = (new Query($this->database))
-            ->from($this->backupCodeTable)
+            ->from($this->table)
             ->where(['user_id' => $userId])
             ->all()
         ;
@@ -119,7 +124,7 @@ trait BackupCodeTrait
                 $this
                     ->database
                     ->createCommand()
-                    ->delete($this->backupCodeTable, ['id' => $row['id']])
+                    ->delete($this->table, ['id' => $row['id']])
                     ->execute()
                 ;
 

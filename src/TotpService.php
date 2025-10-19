@@ -5,47 +5,48 @@ declare(strict_types=1);
 namespace BeastBytes\Yii\Otp;
 
 use Exception;
+use Override;
 use ReflectionException;
 use ReflectionProperty;
 use Throwable;
+use Yiisoft\Db\Exception\Exception as DbException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class TotpService extends OtpService
 {
     /**
-     * Return the OTP parameters for a user
-     *
-     * @param string $userId ID of the user.
+     * Return the OTP parameters for a user.
      * @return array OTP parameters as key=>value pairs, empty if OTP not enabled for the user
      * @psalm-return array{digest?: string, digits?: int, leeway?: int, period?: int}
-     * @throws \Yiisoft\Db\Exception\Exception
+     * @throws DbException
      * @throws InvalidConfigException
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function getOtpParameters(string $userId): array
+    #[Override]
+    public function getParameters(string $userId): array
     {
-        $parameters = [];
-
-        /** @var Totp $otp */
+        /** @var ?Totp $otp */
         $otp = $this->getOtp($userId);
 
-        if ($otp !== null) {
-            $parameters['digest'] = $otp->getDigest();
-            $parameters['digits'] = $otp->getDigits();
-            $parameters['leeway'] = $otp->getLeeway();
-            $parameters['period'] = $otp->getPeriod();
+        if ($otp instanceof Totp) {
+            return [
+                'digest' => $otp->getDigest(),
+                'digits' => $otp->getDigits(),
+                'leeway' => $otp->getLeeway(),
+                'period' => $otp->getPeriod(),
+            ];
         }
 
-        return $parameters;
+        return [];
     }
 
     /**
-     * @param string $userId ID of the user.
      * @return array Columns as key=>value pairs.
      * @psalm-return <string, string>
      * @throws Exception
      */
+    #[Override]
     protected function columns(string $userId): array
     {
         return [
@@ -63,7 +64,8 @@ final class TotpService extends OtpService
      * @throws ReflectionException
      * @throws Throwable
      */
-    protected function hydrate(array $data, string $userId): ?OtpInterface
+    #[Override]
+    protected function hydrate(array $data): ?OtpInterface
     {
         foreach ([
             'digest' => 'digest',

@@ -17,7 +17,7 @@ return [
         'length' => TestCase::BACKUP_CODE_LENGTH,
     ],
     'database' => [
-        'otpBackupCodeTable' => 'otp_backup_code',
+        'backupCodeTable' => 'otp_backup_code',
         'hotpTable' => 'hotp',
         'totpTable' => 'totp',
     ],

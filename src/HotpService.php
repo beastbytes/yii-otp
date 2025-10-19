@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BeastBytes\Yii\Otp;
 
 use Exception;
+use Override;
 use ReflectionException;
 use ReflectionProperty;
 use Throwable;
@@ -13,9 +14,8 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 final class HotpService extends OtpService
 {
     /**
-     * Return the OTP parameters for a user
-     *
-     * @param string $userId ID of the user.
+     * Return the OTP parameters for a user.
+     * @param string $userId User ID
      * @return array OTP parameters as key=>value pairs, empty if OTP not enabled for the user
      * @psalm-return array{counter?: int, digest?: string, digits?: int}
      * @throws \Yiisoft\Db\Exception\Exception
@@ -23,28 +23,29 @@ final class HotpService extends OtpService
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function getOtpParameters(string $userId): array
+    #[Override]
+    public function getParameters(string $userId): array
     {
-        $parameters = [];
-
-        /** @var Hotp $otp */
+        /** @var ?Hotp $otp */
         $otp = $this->getOtp($userId);
 
-        if ($otp !== null) {
-            $parameters['counter'] = $otp->getCounter();
-            $parameters['digest'] = $otp->getDigest();
-            $parameters['digits'] = $otp->getDigits();
+        if ($otp instanceof Hotp) {
+            return [
+                'counter' => $otp->getCounter(),
+                'digest' => $otp->getDigest(),
+                'digits' => $otp->getDigits(),
+            ];
         }
 
-        return $parameters;
+        return [];
     }
 
     /**
-     * @param string $userId ID of the user.
      * @return array Columns as key=>value pairs.
      * @psalm-return <string, string>
      * @throws Exception
      */
+    #[Override]
     protected function columns(string $userId): array
     {
         return [
@@ -62,7 +63,8 @@ final class HotpService extends OtpService
      * @throws ReflectionException
      * @throws Throwable
      */
-    protected function hydrate(array $data, string $userId): ?OtpInterface
+    #[Override]
+    protected function hydrate(array $data): ?OtpInterface
     {
         foreach ([
             'counter' => 'counter',
