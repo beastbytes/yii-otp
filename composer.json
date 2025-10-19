@@ -31,6 +31,7 @@
         "spomky-labs/otphp": "^11.0",
         "symfony/clock": "^7.0",
         "yiisoft/db": "dev-master",
+        "yiisoft/definitions": "^3.0",
         "yiisoft/security": "^1.0"
     },
     "require-dev": {
