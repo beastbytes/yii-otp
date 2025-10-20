@@ -31,6 +31,7 @@ return [
     OtpServiceInterface::class => [
         'class' => TotpService::class,
         '__construct()' => [
+            'backupCodeService' => Reference::to(BackupCodeServiceInterface::class),
             'database' => Reference::to(ConnectionInterface::class),
             'otp' => Reference::to(OtpInterface::class),
             'table' => $params['beastbytes/yii-otp']['database']['otpTable'],
