@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use BeastBytes\Yii\Otp\BackupCodeService;
+use BeastBytes\Yii\Otp\BackupCodeServiceInterface;
 use BeastBytes\Yii\Otp\OtpInterface;
 use BeastBytes\Yii\Otp\OtpServiceInterface;
 use BeastBytes\Yii\Otp\Totp;
