@@ -51,10 +51,15 @@ abstract class OtpService implements OtpServiceInterface
         ;
 
         return [
-            (new QRCode())->render(
-                $this->otp->getProvisioningUri($label, $issuer, $params)
+            'qrcode' => (new QRCode())->render(
+                $this
+                    ->otp
+                    ->getProvisioningUri($label, $issuer, $params)
             ),
-            $this->otp->getSecret(),
+            'secret' => $this
+                ->otp
+                ->getSecret()
+            ,
         ];
     }
 
